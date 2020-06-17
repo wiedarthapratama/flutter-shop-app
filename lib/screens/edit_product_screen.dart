@@ -36,6 +36,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
   void _saveForm() {
+    final _isValid = _form.currentState.validate();
+    if(!_isValid) {
+      return ;
+    }
     _form.currentState.save();
     print(_editedProduct.title);
     print(_editedProduct.price);
@@ -48,7 +52,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
       appBar: AppBar(
         title: Text("Add Product"),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.save, color: Colors.white), onPressed: null,)
+          IconButton(icon: Icon(Icons.save, color: Colors.white), onPressed: () { _saveForm(); },)
         ],
       ),
       body: Padding(
@@ -59,6 +63,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
             textInputAction: TextInputAction.next,
             onFieldSubmitted: (_){
               FocusScope.of(context).requestFocus(_priceFocusNode);
+            },
+            validator: (value) {
+              if(value.isEmpty) {
+                return "please provide a value";
+              }
+              return null;
             },
             onSaved: (value) {
               _editedProduct = Product(
@@ -78,6 +88,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
             onFieldSubmitted: (_){
               FocusScope.of(context).requestFocus(_descFocusNode);
             },
+            validator: (value) {
+              if(value.isEmpty){
+                return "please enter a value";
+              }
+              if(double.tryParse(value)==null){
+                return "please enter a valid value";
+              }
+              if(double.parse(value)<=0){
+                return "please enter a number greater than zero";
+              }
+              return null;
+            },
             onSaved: (value) {
               _editedProduct = Product(
                 title: _editedProduct.title,
@@ -93,6 +115,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
             maxLines: 3,
             keyboardType: TextInputType.multiline,
             focusNode: _descFocusNode,
+            validator: (value) {
+              if(value.isEmpty){
+                return "please enter a value";
+              }
+              if(value.length < 10){
+                return "should be at least 10 characters long";
+              }
+              return null;
+            },
             onSaved: (value) {
               _editedProduct = Product(
                 title: _editedProduct.title,
@@ -125,6 +156,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   focusNode: _imageUrlFocusNode,
                   onFieldSubmitted: (_) {
                     _saveForm();
+                  },
+                  validator: (value) {
+                    if(value.isEmpty){
+                      return "please enter a image url";
+                    }
+                    if(!value.startsWith("http") && !value.startsWith("https")){
+                      return "please enter a valid url";
+                    }
+                    if(!value.endsWith(".png") && !value.endsWith(".jpg") && !value.endsWith(".jpeg")){
+                      return "please enter a valid image url";
+                    }
+                    return null;
                   },
                   onSaved: (value) {
                     _editedProduct = Product(
