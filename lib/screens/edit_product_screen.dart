@@ -23,6 +23,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     'imageUrl': ''
   };
   var _isInit = true;
+  var _isLoading = false;
   @override
   void initState() {
     _imageUrlFocusNode.addListener(_updateImageUrl);
@@ -68,12 +69,24 @@ class _EditProductScreenState extends State<EditProductScreen> {
       return ;
     }
     _form.currentState.save();
+    setState(() {
+      _isLoading = true;
+    });
     if(_editedProduct.id != null) {
       Provider.of<ProductProvider>(context, listen: false).updateProduct(_editedProduct.id, _editedProduct);
+      Navigator.of(context).pop();
+      setState(() {
+        _isLoading = false;
+      });
     }else{
-      Provider.of<ProductProvider>(context, listen: false).addProduct(_editedProduct);
+      Provider.of<ProductProvider>(context, listen: false).addProduct(_editedProduct).then((_){
+        Navigator.of(context).pop();
+      });
+      setState(() {
+        _isLoading = false;
+      });
     }
-    Navigator.of(context).pop();
+    // Navigator.of(context).pop();
   }
   @override
   Widget build(BuildContext context) {
@@ -84,7 +97,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
           IconButton(icon: Icon(Icons.save, color: Colors.white), onPressed: () { _saveForm(); },)
         ],
       ),
-      body: Padding(
+      body: _isLoading ? Center(
+        child: CircularProgressIndicator(),
+      ) : Padding(
         padding: const EdgeInsets.all(8.0),
         child: Form(key: _form, child: ListView(children: <Widget>[
           TextFormField(
