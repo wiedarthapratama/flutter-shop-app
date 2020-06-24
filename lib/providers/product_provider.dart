@@ -67,29 +67,29 @@ class ProductProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  Future<void> addProduct(Product product) {
-    const url = "https://flutter-shop-app-281d3.firebaseio.com/products.json";
-    return http.post(url, body: json.encode({
+  Future<void> addProduct(Product product) async {
+    const url = "https://flutter-shop-app-281d3.firebaseio.com/products";
+    try {
+      final response = await http.post(url, body: json.encode({
       'title': product.title,
       'description': product.description,
       'price': product.price,
       'imageUrl': product.imageUrl,
       'isFavorite': product.isFavorite,
-    }),).then((response) {
-      print(json.decode(response.body));
-      final newProduct = Product(
-        title: product.title,
-        price: product.price,
-        description: product.description,
-        imageUrl: product.imageUrl,
-        id: json.decode(response.body)['name']
-      );
-      _productList.add(newProduct);
-      notifyListeners();
-    }).catchError((error){
+    }),);
+    final newProduct = Product(
+      title: product.title,
+      price: product.price,
+      description: product.description,
+      imageUrl: product.imageUrl,
+      id: json.decode(response.body)['name']
+    );
+    _productList.add(newProduct);
+    notifyListeners();
+    } catch (error) {
       print(error);
       throw error;
-    });
+    }
   }
 
   void updateProduct(String id, Product newProduct){
