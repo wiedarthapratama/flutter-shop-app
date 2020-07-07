@@ -52,7 +52,7 @@ class UserProductItem extends StatelessWidget {
                                         .deleteProduct(id);
                                   } catch (e) {
                                     scaffold.showSnackBar(SnackBar(
-                                        content: Text('Deleting Faild')));
+                                        content: Text('Deleting Failed')));
                                   }
                                   Navigator.of(ctx).pop();
                                 },

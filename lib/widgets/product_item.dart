@@ -9,6 +9,7 @@ class ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scaffold = Scaffold.of(context);
     final product = Provider.of<Product>(context, listen: false);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     return ClipRRect(
@@ -16,7 +17,8 @@ class ProductItem extends StatelessWidget {
       child: GridTile(
         child: GestureDetector(
           onTap: () {
-            Navigator.of(context).pushNamed(ProductDetailScreen.routeName, arguments: product.id);
+            Navigator.of(context).pushNamed(ProductDetailScreen.routeName,
+                arguments: product.id);
           },
           child: Image.network(
             product.imageUrl,
@@ -30,9 +32,14 @@ class ProductItem extends StatelessWidget {
               icon: Icon(
                 product.isFavorite ? Icons.favorite : Icons.favorite_border,
                 color: Theme.of(context).accentColor,
-              ), 
-              onPressed: () {
-                product.toogleFavoriteStatus();
+              ),
+              onPressed: () async {
+                try {
+                  await product.toogleFavoriteStatus();
+                } catch (e) {
+                  scaffold.showSnackBar(
+                      SnackBar(content: Text('Update Favorite Failed')));
+                }
               },
             ),
           ),
@@ -44,22 +51,20 @@ class ProductItem extends StatelessWidget {
             icon: Icon(
               Icons.shopping_cart,
               color: Theme.of(context).accentColor,
-            ), 
-            onPressed: (){
+            ),
+            onPressed: () {
               cartProvider.addCart(product.id, product.title, product.price);
               Scaffold.of(context).hideCurrentSnackBar();
-              Scaffold.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Added Product to Cart"),
-                  duration: Duration(seconds: 2),
-                  action: SnackBarAction(
-                    label: 'Undo',
-                    onPressed: () {
-                      cartProvider.remodeSingleCart(product.id);
-                    },
-                  ),
-                )
-              );
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text("Added Product to Cart"),
+                duration: Duration(seconds: 2),
+                action: SnackBarAction(
+                  label: 'Undo',
+                  onPressed: () {
+                    cartProvider.remodeSingleCart(product.id);
+                  },
+                ),
+              ));
             },
           ),
         ),
